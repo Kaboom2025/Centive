@@ -323,6 +323,15 @@ def get_auth():
 
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
+    global access_token
+    
+    # Check if access_token is available
+    if access_token is None:
+        return jsonify({
+            'error': {'message': 'No access token available. Please connect your bank account first.'},
+            'latest_transactions': []
+        }), 400
+    
     # Set cursor to empty to receive all historical updates
     cursor = ''
 
@@ -333,21 +342,31 @@ def get_transactions():
     has_more = True
     try:
         # Iterate through each page of new transaction updates for item
-        while has_more:
+        max_retries = 5
+        retry_count = 0
+        
+        while has_more and retry_count < max_retries:
             request = TransactionsSyncRequest(
                 access_token=access_token,
                 cursor=cursor,
             )
             response = client.transactions_sync(request).to_dict()
             cursor = response['next_cursor']
+            
             # If no transactions are available yet, wait and poll the endpoint.
             # Normally, we would listen for a webhook, but the Quickstart doesn't 
             # support webhooks. For a webhook example, see 
             # https://github.com/plaid/tutorial-resources or
             # https://github.com/plaid/pattern
             if cursor == '':
-                time.sleep(2)
-                continue  
+                retry_count += 1
+                if retry_count < max_retries:
+                    time.sleep(2)
+                    continue
+                else:
+                    # If we've retried too many times, break out of loop
+                    break
+            
             # If cursor is not an empty string, we got results, 
             # so add this page of results
             added.extend(response['added'])
