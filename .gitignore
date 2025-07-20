@@ -56,3 +56,29 @@ docker-compose.local*.yml
 #Python virtual nv
 python/venv/*
 bos-mbp.pem
+
+# Next.js cache and build directories
+**/.next/
+**/out/
+**/.cache/
+
+# Package manager files
+**/pnpm-lock.yaml
+**/yarn.lock
+**/package-lock.json
+
+# Environment files
+**/.env*
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# TypeScript
+**/*.tsbuildinfo
+**/next-env.d.ts
+
+# Vercel
+**/.vercel
+
+clean_frontend
