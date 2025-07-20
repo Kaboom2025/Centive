@@ -81,4 +81,5 @@ bos-mbp.pem
 # Vercel
 **/.vercel
 
-clean_frontend
+# Frontend directories to exclude
+clean_frontend/
